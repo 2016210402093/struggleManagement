@@ -5,40 +5,38 @@ import Msg from './msg.js'
 import 'antd/dist/antd.css';
 import "./login.css";
 import axios from 'axios'
+import {url} from '../config'
 const { Option } = Select;
 class Login extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      logo: { name: "123" },
       show: false,
       isLogin: 0,
-      msg: null
+      msg: null,
     }
   }
-  componentDidMount() {
-    if (localStorage.getItem('user-token')) {
-      axios.defaults.headers.common.authorization = localStorage.getItem('user-token');
-      this.setState({ isLogin: 1 });
-    }
-  }
+
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
         if (!err) {
-            let usr = values.userName, pwd = values.password, data = {  "userName": usr, "password": pwd  }
-            console.log(data)
-            axios.post('http://47.106.122.35:9900/login', data).then((r) => {
-              console.log(r.data);
-                if (r.data.code === 1&&values.remember===true) {
-                    axios.defaults.headers.common.authorization = r.data.token;
+            let usr = values.userName;
+            let pwd = values.password;
+            let data = {  "userName": usr, "password": pwd  };
+            axios.post(url+'login', data).then((r) => {
+                if(r.data.code === 1){
+                    axios.defaults.headers.common.authorization = r.data.data.token;
+                    console.log(r.data.data.result[0].USER_ID,r.data.data.token );
+                    localStorage.setItem("userId", r.data.data.result[0].USER_ID)
                 }
-      
-                this.setState({ msg: r.data.message, show: true, isLogin: r.data.code});
+                this.setState({ msg: r.data.msg, show: true, isLogin: r.data.code});
             });
         }
     });
-}
+};
   render() {
     const { getFieldDecorator } = this.props.form;
     let isLogin = this.state.isLogin, msg = this.state.msg, show = this.state.show;
@@ -75,20 +73,10 @@ class Login extends Component {
               }
 
             </Form.Item>
-            <Form.Item>
-              {
-                getFieldDecorator('remember', {
-                  valuePropName: 'checked',
-                  initialValue: false,
-                })(<Checkbox>Remember me</Checkbox>)
-              }
-              <a className="login-form-forgot" href="">
-                Forgot password
-                </a>
+            <Form.Item style={{marginTop: "20px"}}>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                Log in
-                </Button>
-              Or <a href="">register now!</a>
+                登录
+              </Button>
             </Form.Item>
           </Form>
         </div>

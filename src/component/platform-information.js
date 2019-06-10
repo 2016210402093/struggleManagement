@@ -10,6 +10,12 @@ class Information extends React.Component {
 
         }
     }
+
+    componentDidMount(){
+        // localStorage.setItem("selectedKeys", "8");
+        // localStorage.setItem("openKeys", "sub2");
+    }
+
     render() {
         return (
             <div className='information-g'>
@@ -17,12 +23,12 @@ class Information extends React.Component {
                 <div>成立时间：<span>2019.5.2</span></div>
                 <div>联系人：<span>cjm xwy zzh</span></div>
                 <div>
-                    联系电话：<Input placeholder='15990020548' />
+                    联系电话：<Input disabled placeholder='15990020548' />
                 </div>
                 <div>
-                    所在区域：<Input placeholder='浙江杭州' />
+                    所在区域：<Input disabled placeholder='浙江杭州' />
                 </div>
-                <div>详细地址：<TextArea rows={4} placeholder='dhaksakdhdkajhdkakjd' /></div>
+                <div>详细地址：<TextArea  disabled rows={4} placeholder='杭州师范大学仓前校区勤园' /></div>
             </div>
         )
 

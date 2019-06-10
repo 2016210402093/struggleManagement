@@ -1,6 +1,5 @@
 body{ 
   background:#47a2f8;
-  
 }
 .login-g{
   width: 100%;
@@ -15,7 +14,7 @@ body{
   width: 350px;
   border: 1px solid rgb(205, 208, 211);
   background:white;
-  box-shadow: 0px 1px 3px rgba(34, 25, 25, 0.2)
+  box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2)
 }
 .login-logo {   
     margin-top: 5%;

@@ -3,25 +3,11 @@ import { Table, Divider, Button,Icon,Modal } from 'antd';
 import Search from './search.js';
 
 import './clock-manage.css';
+import {url} from "../config";
+import axios from 'axios'
 
 const confirm = Modal.confirm;
 
-  
-  function showDeleteConfirm() {
-    confirm({
-      title: '你想要删除此记录吗?',
-      content: 'Some descriptions',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-  }
   
   class ClockManage extends React.Component {
     constructor(props) {
@@ -54,34 +40,99 @@ const confirm = Modal.confirm;
                     title: '操作',
                     dataIndex: 'operation',
                     key: 'operation',
-                    render: () => (
+                    render: (text,record) => (
                         <span>
-                            <span onClick={showDeleteConfirm} className='delete'>删除</span>
-                        </span>)
+                            <a onClick={() => this.showDeleteConfirm(record.clockId)} className='delete'> 删除 </a>
+                        </span>
+                    )
                 },
             ],
-            data: [
-                {
-                    key: '1',
-                    username: 'cjm',
-                    clockcontent:'百词斩',
-                    clock_time: '2019-1-1',
-                },
-                {
-                    key: '2',
-                    username: 'cjm',
-                    clockcontent:'百词斩',
-                    clock_time: '2019-1-2',
-                },
-                {
-                    key: '3',
-                    username: 'cjm',
-                    clockcontent:'百词斩',
-                    clock_time: '2019-1-2',
-                },],
+            data: [],
+            inputValue: "",
+            perNum: 5,
         }
     }
-    
+
+      componentDidMount(){
+          // localStorage.setItem("selectedKeys", "5");
+          // localStorage.setItem("openKeys", "sub2");
+          this.getAllClockInfo();
+      }
+
+      getAllClockInfo= ()=>{
+          axios.post(url+'clock/clockList',{}).then((r) => {
+              console.log(r);
+              let data = [];
+              for(let i=0; i<r.data.length; ++i){
+                  data.push({
+                      key: i,
+                      username: r.data[i].USER_NAME,
+                      clockcontent: r.data[i].CLOCK_CONTENT,
+                      clock_time: r.data[i].CREATION_TIME,
+                      clockId: r.data[i].CLOCK_ID
+                  });
+              }
+              this.setState({data: data});
+          });
+      };
+
+
+      showDeleteConfirm = (clockId)=> {
+          let that = this;
+          confirm({
+              title: '你想要删除该记录吗?',
+              okText: 'Yes',
+              okType: 'danger',
+              cancelText: 'No',
+              onOk() {
+                  //删除
+                  axios.post(url+'clock/deleteClock',{
+                      clockId: clockId
+                  }).then((r) => {
+                      if(r.data.code === 1){
+                          that.getAllClockInfo();
+                      }
+                  });
+
+              },
+              onCancel() {
+                  console.log('Cancel');
+              },
+          });
+      };
+
+      changeUserPagePerNum = (number, inputValue) =>{
+          this.setState({
+              inputValue: inputValue,
+              perNum: number,
+          });
+
+          if(inputValue.length === 0){
+              this.getAllClockInfo();
+          }
+          //模糊查询
+          else {
+              axios.post(url+'clock/queryByUserName',{
+                  userName: inputValue
+              }).then((r) => {
+                  console.log(r);
+                  let data = [];
+                  for(let i=0; i<r.data.length; ++i){
+                      data.push({
+                          key: i,
+                          username: r.data[i].USER_NAME,
+                          clockcontent: r.data[i].CLOCK_CONTENT,
+                          clock_time: r.data[i].CREATION_TIME,
+                          clockId: r.data[i].CLOCK_ID
+                      });
+                  }
+                  this.setState({data: data});
+              });
+          }
+      };
+
+
+
     render() {
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => {
@@ -94,14 +145,16 @@ const confirm = Modal.confirm;
         };
         return (
             <div>
-                <Search />
+                <Search changeUserPagePerNum = {this.changeUserPagePerNum}/>
                 <div className='clockHead'>
                     <div>
                         打卡列表
                     </div>
                     
                 </div>
-                <Table rowSelection={rowSelection} columns={this.state.columns} dataSource={this.state.data} />
+                <Table rowSelection={rowSelection} columns={this.state.columns} dataSource={this.state.data} pagination={{
+                    pageSize: this.state.perNum
+                }} />
             </div>
         )
     }

@@ -4,39 +4,18 @@ import './message.css'
 
 const confirm = Modal.confirm;
 
-function showDeleteConfirm() {
-    confirm({
-      title: '你想要删除此推送吗?',
-      content: 'Some descriptions',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-  }
 
 class MessageItem extends React.Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             listData: [],
         }
     }
 
     render() {
-        for (let i = 0; i < 23; i++) {
-            this.state.listData.push({
-                href: '',
-                title: '考研火热进行中',
-                description:
-                    '你选好学校了吗？？？？',
-            });
-        }
+        this.state.listData = this.props.infoList;
+
         const IconText = ({ type, text }) => (
             <span>
                 <Icon type={type} style={{ marginRight: 8, color: '#1890ff', fontSize: 20 }} />
@@ -51,24 +30,21 @@ class MessageItem extends React.Component {
                     itemLayout="vertical"
                     size="large"
                     pagination={{
-                        onChange: page => { console.log(page); }, pageSize: 3,
+                        onChange: page => { console.log(page); }, pageSize: this.props.perNum,
                     }}
                     dataSource={this.state.listData}
                     renderItem={item => (
                         <List.Item className='messagelist'
                             key={item.title}
                             actions={[ 
-                                <div className='messagetime'>2019年5月12日18:00</div>,
-                                <IconText type="eye" text="156" />,
-                                <IconText type="like-o" text="156" />,
-                                <IconText type="star" text='2000' />,
+                                <div className='messagetime'>{item.creationTime}</div>,
+                                <IconText type="like-o" text={item.likeNum} />,
                             ]}
                             extra={
                                 <div className='extra'>
-                                    <img width={200} height={100} alt="logo" src={require('./img/message.jpg')} />
+                                    <img width={200} height={100} alt="logo" src={item.imgUrl} />
                                     <div className='operation'>
-                                        <Button type="primary" icon="copy" className='copy'>复制</Button>
-                                        <Button type="danger" icon="delete" className='delete' onClick={showDeleteConfirm} >删除</Button>
+                                        <Button type="danger" icon="delete" className='delete' onClick={() => this.props.showDeleteConfirm(item.infoId)} >删除</Button>
                                     </div>
 
                                 </div>

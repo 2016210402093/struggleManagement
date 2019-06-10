@@ -1,7 +1,7 @@
 import React from 'react';
 import './data1.css'
 class Data extends React.Component {
-    Mapcontent = (list) => {
+    mapContent = (list) => {
         return (
             list.map((item, index) => {
                 return (
@@ -12,7 +12,7 @@ class Data extends React.Component {
                 )
             })
         )
-    }
+    };
     render() {
         let title = this.props.title, subtitle = this.props.subtitle, list = this.props.list;
         return (
@@ -24,12 +24,12 @@ class Data extends React.Component {
                 <div className='g-data'>
                     <div className='gray-head'>
                         <ul className='cont'>
-                            <li><a href="">{subtitle}</a></li>
+                            <li><a>{subtitle}</a></li>
                         </ul>
                     </div>
                     <div className='body-content'>
                         <ul>
-                            {this.Mapcontent(list)}
+                            {this.mapContent(list)}
                         </ul>
                     </div>
                     <div className='notice'>

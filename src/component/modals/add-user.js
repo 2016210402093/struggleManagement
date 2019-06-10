@@ -1,5 +1,9 @@
 import React from 'react';
 import { Modal, Button, Form, Input, Row} from 'antd';
+import {url} from "../../config";
+import axios from 'axios'
+
+
 class AddUser extends React.Component {
     constructor(props) {
         super(props);
@@ -17,9 +21,21 @@ class AddUser extends React.Component {
 
     handleOk = () => {
         this.setState({ loading: true });
-        setTimeout(() => {
-            this.setState({ loading: false, visible: false });
-        }, 3000);
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                console.log(values)
+                axios.post(url+'user/addUser', {
+                    userName: values.userName,
+                    password: values.password,
+                    email: values.email,
+                    testYear: values.testYear,
+                    goalSchool: values.goalSchool
+                }).then((r) => {
+                    this.setState({ loading: false, visible: false });
+                    this.props.changeUserPagePerNum(5, "");
+                });
+            }
+        });
     };
 
     handleCancel = () => {
@@ -76,7 +92,7 @@ class AddUser extends React.Component {
                         </Row>
                         <Row gutter={16}>
                             <Form.Item label="目标院校：">
-                                {getFieldDecorator('password', {
+                                {getFieldDecorator('goalSchool', {
                                     rules: [{ required: true, message: '请输入目标院校：' }],
                                 })(<Input placeholder="" />)}
                             </Form.Item>
@@ -90,7 +106,7 @@ class AddUser extends React.Component {
                                             message: '请输入文字内容',
                                         },
                                     ],
-                                })(<Input.TextArea rows={10} placeholder="请输入文字内容" />)}
+                                })(<Input.TextArea rows={2} placeholder="请输入文字内容" />)}
                             </Form.Item>
                         </Row>
                     </Form>

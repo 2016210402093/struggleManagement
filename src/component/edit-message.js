@@ -1,6 +1,8 @@
 import React from 'react';
 import './edit-message.css'
 import { Upload, Drawer, Form, Button, Col, Row, Input, Icon,message,Modal } from 'antd'
+import {url} from "../config";
+import axios from 'axios'
 
 
 class Edit extends React.Component {
@@ -10,37 +12,30 @@ class Edit extends React.Component {
             loading: false,
         }
     }
-    getBase64 = (img, callback) => {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => callback(reader.result));
-        reader.readAsDataURL(img);
-    }
-    beforeUpload = (file) => {
-        const isJPG = file.type === 'image/jpeg';
-        if (!isJPG) {
-            message.error('You can only upload JPG file!');
-        }
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        if (!isLt2M) {
-            message.error('Image must smaller than 2MB!');
-        }
-        return isJPG && isLt2M;
-    }
-    handleChange = (info) => {
-        if (info.file.status === 'uploading') {
-            this.setState({ loading: true });
-            return;
-        }
-        if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            this.getBase64(info.file.originFileObj, imageUrl =>
-                this.setState({
-                    imageUrl,
-                    loading: false,
-                }),
-            );
-        }
+
+
+    handleSubmit=(e)=>{
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                console.log(values);
+
+                axios.post(url + 'info/addInfo', {
+                    infoContent: values.infoContent,
+                    infoTitle: values.infoTitle,
+                    infoSubTitle: values.infoTitle,
+                    userId: localStorage.getItem("userId")
+                }).then((r) => {
+                    console.log(r);
+                    values.infoContent = "";
+                    values.infoTitle = "";
+                    values.infoTitle = "";
+                    this.props.changeUserPagePerNum(5,""); //刷新
+                    this.onClose();
+                });
+            }
+        })
     };
+
     showDrawer = () => {
         this.setState({
             visible: true,
@@ -71,34 +66,28 @@ class Edit extends React.Component {
                     onClose={this.onClose}
                     visible={this.state.visible}
                 >
-                    <Form layout="vertical" hideRequiredMark>
+                    <Form layout="vertical" onSubmit={this.handleSubmit} hideRequiredMark>
                         <Row gutter={16}>
                                 <Form.Item label="信息主题：">
-                                    {getFieldDecorator('MessageName', {
+                                    {getFieldDecorator('infoTitle', {
                                         rules: [{ required: true, message: '请输入信息主题' }],
                                     })(<Input placeholder="请输入信息主题" />)}
                                 </Form.Item>
                            
                         </Row>
                         <Row gutter={16}>
-                            <Form.Item label="封面首图：">
-                                    <Upload
-                                        name="picture"
-                                        listType="picture-card"
-                                        className="avatar-uploader"
-                                        showUploadList={false}
-                                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                                        beforeUpload={this.beforeUpload}
-                                        onChange={this.handleChange}
-                                    >
-                                        {imageUrl ? <img src={imageUrl} alt="avatar" className='messageimg'/> : uploadButton}
-                                    </Upload>
-                                </Form.Item>
+                            <Form.Item label="信息介绍：">
+                                {getFieldDecorator('infoSubTitle', {
+                                    rules: [{ required: true, message: '请输入信息介绍' }],
+                                })(<Input placeholder="请输入信息介绍" />)}
+                            </Form.Item>
+
                         </Row>
+
                         <Row gutter={16}>
                             <Col span={24}>
                                 <Form.Item label="具体内容:">
-                                    {getFieldDecorator('description', {
+                                    {getFieldDecorator('infoContent', {
                                         rules: [
                                             {
                                                 required: true,
@@ -111,8 +100,8 @@ class Edit extends React.Component {
                         </Row>
                     </Form>
                     <div className='edit-footer'>
-                        <Button onClick={this.onClose} style={{ marginRight: 8 }}>Cancel</Button>
-                        <Button onClick={this.onClose} type="primary">Submit</Button>
+                        <Button onClick={this.onClose} style={{ marginRight: 8 }}>取消</Button>
+                        <Button onClick={this.handleSubmit}  type="primary">提交</Button>
                     </div>
                 </Drawer>
             </div>

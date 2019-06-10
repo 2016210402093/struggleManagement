@@ -1,21 +1,13 @@
 import React from 'react';
 import  { Table, Input, InputNumber, Popconfirm, Form,Divider } from  'antd';
-const data = [];
-for (let i = 0; i < 30; i++) {
-    data.push({
-        key: i.toString(),
-        username: `chenjiamei ${i}`,
-        email: '1029187145@qq.com',
-        testYear: '2020',
-        goalSchool: '杭州师范大学',
-        register_time: '2019-1-1',
-        personal: '这个人很懒，没有个性签名',
-    });
-}
-console.log(data);
+import axios from 'axios'
+import {url} from '../config'
+
 const EditableContext = React.createContext();
 
 class EditableCell extends React.Component {
+
+
     getInput = () => {
         if (this.props.inputType === 'number') {
             return <InputNumber />;
@@ -60,26 +52,22 @@ class EditableCell extends React.Component {
     }
 }
 
+
 class EditableTable extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { data, editingKey: '' };
+        this.state = {
+            data :[],
+            editingKey: ''
+        };
         this.columns = [
-            {
-                title: '用户头像',
-                dataIndex: 'userimg',
-                key: 'userimg',
-                render: () => <img src={require("./img/userimg.jpg")} alt="" className='userimg' />,
-                editable: false,
-                align:'center',
-            },
             {
                 title: '用户名',
                 dataIndex: 'username',
                 key: 'username',
                 sorter: (a, b) => a.username.length - b.username.length,
                 sortDirections: ['descend'],
-                render: text => <a href="javascript:;">{text}</a>,
+                render: text => <a>{text}</a>,
                 width: '15%',
                 align:'center',
                 editable: true,
@@ -133,13 +121,7 @@ class EditableTable extends React.Component {
                         <span>
                             <EditableContext.Consumer>
                                 {form => (
-                                    <a
-                                        href="javascript:;"
-                                        onClick={() => this.save(form, record.key)}
-                                        style={{ marginRight: 8 }}
-                                    >
-                                        保存
-                  </a>
+                                    <a onClick={() => this.save(form, record.key)} style={{ marginRight: 8 }}>保存</a>
                                 )}
                             </EditableContext.Consumer>
                             <Popconfirm title="是否取消?" onConfirm={() => this.cancel(record.key)}>
@@ -147,20 +129,18 @@ class EditableTable extends React.Component {
                             </Popconfirm>
                         </span>
                     ) : (
-                            <div>
-                                <a disabled={editingKey !== ''} onClick={() => this.edit(record.key)}>
-                                    修改信息
-            </a>
-            <Divider />
-                                <a disabled={editingKey !== ''} className='delete' onClick={() => this.delete(record.key)}>
-                                    删除
-           </a>
-                            </div>
-
+                        <div>
+                            {/*<a disabled={editingKey !== ''} onClick={() => this.edit(record.key)}>修改信息</a><Divider />*/}
+                            <a disabled={editingKey !== ''} className='delete' onClick={() => this.delete(record.key)}>删除</a>
+                        </div>
                         );
                 },
             },
         ];
+    }
+
+    componentWillReceiveProps(nextProps){
+        this.setState({data: nextProps.userList});
     }
 
     isEditing = record => record.key === this.state.editingKey;
@@ -171,11 +151,15 @@ class EditableTable extends React.Component {
 
     save(form, key) {
         form.validateFields((error, row) => {
+
+
             if (error) {
                 return;
             }
             const newData = [...this.state.data];
+
             const index = newData.findIndex(item => key === item.key);
+
             if (index > -1) {
                 const item = newData[index];
                 newData.splice(index, 1, {
@@ -187,7 +171,7 @@ class EditableTable extends React.Component {
                 newData.push(row);
                 this.setState({ data: newData, editingKey: '' });
             }
-            console.log(newData);
+
         });
         
     }
@@ -197,16 +181,22 @@ class EditableTable extends React.Component {
     delete(key){
         const newData = [...this.state.data];
         const index = newData.findIndex(item => key === item.key);
-        console.log('shanchu'+index)
+        axios.post(url+'user/deleteUser',{userId: this.state.data[index].userId}).then((r) => {
+            if(r.data.code ===1){
+                this.props.updateInfo();
+            }
+        });
+
+
         if (index > -1) {
             newData.splice(index, 1);
             console.log(newData)
         }
         this.setState({ data: newData, editingKey: '' });
-
     }
 
     render() {
+
         const components = {
             body: {
                 cell: EditableCell,
@@ -238,7 +228,8 @@ class EditableTable extends React.Component {
                     columns={columns}
                     rowClassName="editable-row"
                     pagination={{
-                        onChange: this.cancel,
+                        // onChange: this.cancel,
+                        pageSize: this.props.perNum
                     }}
                 />
             </EditableContext.Provider>

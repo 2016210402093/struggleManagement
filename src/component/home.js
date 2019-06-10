@@ -11,10 +11,48 @@ import MessageEdit from './message-edit.js';
 import EssayManage from './essay-manage.js';
 import ClockManage from './clock-manage.js';
 import Information from './platform-information.js'
+import axios from 'axios'
+import {url} from "../config";
 const { SubMenu } = Menu;
 const { Header, Content, Sider } = Layout;
 
 class Home extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedKeys:"1",
+            openKeys: "sub1",
+            userName: '',
+            userImg: ''
+        };
+    }
+    // //设置选择的标签
+    // setChoseItem = () => {
+    //     this.setState({
+    //         selectedKeys: localStorage.getItem("selectedKeys"),
+    //         openKeys: localStorage.getItem("openKeys"),
+    //         userName: localStorage.getItem("userName"),
+    //         userImg: localStorage.getItem("userImg")
+    //     });
+    // };
+
+    getUserInfo = () =>{
+
+        axios.post('http://47.102.199.210:9900/getUserInfo',{
+            userId: localStorage.getItem("userId")
+        }).then((r) => {
+            window.localStorage.setItem("userImg", 'http://47.102.199.210:9900/'+r.data.data.userImg);
+        });
+    };
+
+    componentWillMount (){
+        this.setState({
+            userName: localStorage.getItem("userName"),
+            userImg: localStorage.getItem("userImg")
+        });
+        this.getUserInfo();
+    }
 
     render() {
         return (
@@ -26,43 +64,45 @@ class Home extends React.Component {
                     </div>
                     <div className='user'>
                         <div className='headscul'>
-                            <Avatar src={require('./img/manageuser.jpeg')} size="large" className='he-logo' />
-                            <span className='username'>cjm</span>
+                            <Avatar src={this.state.userImg} size="large" className='he-logo' />
+                            <span className='username'>{this.state.userName}</span>
                         </div>
-                        <div>退出</div>
+                        <Link to="/">
+                            <div>退出</div>
+                        </Link>
                     </div>
                 </Header>
                 <Layout>
                     <Sider width={200} style={{ background: '#fff' }}>
                         <Menu
                             mode="inline"
-                            defaultSelectedKeys={['1']}
-                            defaultOpenKeys={['sub1']}
+                            defaultSelectedKeys={[this.state.selectedKeys]}
+                            defaultOpenKeys={[this.state.openKeys]}
                             style={{ height: '100%', borderRight: 0 }}
                         >
                             <SubMenu key="sub1" title={<span><Icon type="bar-chart" />统计</span>}>
                                 <Menu.Item  key="1">
-                                <Link to="/Home/"> 用户分析</Link>
+                                    <Link to="/Home/"> 用户分析</Link>
                                 </Menu.Item>
                                 <Menu.Item key="2">
-                                <Link to="/Home/ContAna"> 内容分析</Link>
+                                    <Link to="/Home/ContAna"> 内容分析</Link>
                                 </Menu.Item>
                             </SubMenu>
                             <SubMenu key="sub2" title={<span><Icon type="form" />管理</span>}>
                                 <Menu.Item  key="3">
-                                <Link to="/Home/UserManage"> 用户管理</Link>
+                                    <Link to="/Home/UserManage"> 用户管理</Link>
                                 </Menu.Item>
                                 <Menu.Item key="4">
-                                <Link to="/Home/EssayManage"> 帖子管理</Link>
+                                    <Link to="/Home/EssayManage"> 帖子管理</Link>
                                 </Menu.Item>
                                 <Menu.Item key="5">
-                                <Link to="/Home/ClockManage"> 打卡管理</Link>
+                                    <Link to="/Home/ClockManage"> 打卡管理</Link>
                                 </Menu.Item>
                                 <Menu.Item key="6">
-                                <Link to="/Home/FileManage"> 文件管理</Link>
+                                    <Link to="/Home/FileManage"> 文件管理</Link>
                                 </Menu.Item>
                                 <Menu.Item key="7">
-                                <Link to="/Home/MessageEdit"> 信息推送</Link>
+                                    <Link to="/Home/MessageEdit"> 信息推送</Link>
                                 </Menu.Item>
                             </SubMenu>
                             <SubMenu key="sub3" title={<span><Icon type="setting" />设置</span>}>
@@ -72,17 +112,15 @@ class Home extends React.Component {
                         </Menu>
                     </Sider>
                     <Layout style={{ padding: '0 24px 24px' }}>
-                        <Content style={{
-                            background: '#fff', padding: 24, margin: 0, minHeight: 280,
-                        }}>
-                           <Route path="/Home/" exact component={UserAna} />
+                        <Content className={"content"}>
+                            <Route path="/Home/" exact component={UserAna} />
                             <Route path="/Home/ContAna" component={ContAna} />
                             <Route path="/Home/UserManage"  component={UserManage} />
                             <Route path="/Home/EssayManage"  component={EssayManage} />
                             <Route path="/Home/ClockManage"  component={ClockManage} />
                             <Route path="/Home/FileManage"  component={FileManage} />
-                            <Route path="/Home/MessageEdit"  component={MessageEdit} /> 
-                            <Route path="/Home/Information"  component={Information} /> 
+                            <Route path="/Home/MessageEdit"  component={MessageEdit} />
+                            <Route path="/Home/Information"  component={Information} />
                         </Content>
                     </Layout>
                 </Layout>

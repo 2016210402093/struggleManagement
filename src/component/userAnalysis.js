@@ -11,16 +11,16 @@ class UserAna extends React.Component {
             subtitle:'昨日用户数据',
             list:[{
                 content:'新注册用户',
-                number:'1000'
+                number:'47'
             },{
                 content:'昨日访问',
-                number:'1000'
+                number:'18'
             },{
                 content:'累计注册',
-                number:'1000'
+                number:'67'
             },{
                 content:'累计访问',
-                number:'1000'
+                number:'234'
             },],
             columns: [
                 {
@@ -47,27 +47,33 @@ class UserAna extends React.Component {
             data: [
                     {
                       key: '1',
-                      time: '2019-3-31',
+                      time: '2019-5-31',
                       New_register: 32,
                       daily_visit: 100,
                       sum_register: 30,
                     },
                     {
                         key: '2',
-                        time: '2019-4-1',
+                        time: '2019-6-1',
                         New_register: 32,
                         daily_visit: 100,
                         sum_register: 30,
                     },
                     {
                         key: '3',
-                        time: '2019-4-2',
+                        time: '2019-6-2',
                         New_register: 32,
                         daily_visit: 100,
                         sum_register: 30,
                     },]
         }
     }
+
+    componentDidMount(){
+        // localStorage.setItem("selectedKeys", "1");
+        // localStorage.setItem("openKeys", "sub1");
+    }
+
     render() {
         return (
             <div>
